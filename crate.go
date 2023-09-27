@@ -19,8 +19,8 @@ import (
 	"unsafe"
 )
 
-var ErrInit = errors.New("can't initialize ltr structure")
-var ErrOpen = errors.New("can't open connection to ltrd")
+var ErrInitCrate = errors.New("can't initialize ltr structure")
+var ErrOpenCrate = errors.New("can't open connection to ltrd")
 var ErrGetCrates = errors.New("can't get crates")
 var ErrGetModules = errors.New("can't get modules")
 
@@ -28,12 +28,12 @@ func GetCrateSerials() ([]string, error) {
 	ltr := new(C.TLTR)
 	res := C.LTR_Init(ltr)
 	if res != C.LTR_OK {
-		return nil, ErrInit
+		return nil, ErrInitCrate
 	}
 
 	res = C.LTR_Open(ltr)
 	if res != C.LTR_OK {
-		return nil, ErrOpen
+		return nil, ErrOpenCrate
 	}
 	foundCrates := 0
 	foundCratesPtr := (*C.uint)(unsafe.Pointer(&foundCrates))
@@ -62,13 +62,13 @@ INIT:
 	ltr := new(C.TLTR)
 	res := C.LTR_Init(ltr)
 	if res != C.LTR_OK {
-		return nil, ErrInit
+		return nil, ErrInitCrate
 	}
 	ltr.cc = C.CC_CONTROL
 	ltr.csn = ser
 	res = C.LTR_Open(ltr)
 	if res != C.LTR_OK {
-		return nil, ErrOpen
+		return nil, ErrOpenCrate
 	}
 	var mid [C.MODULE_MAX]C.WORD
 	res = C.LTR_GetCrateModules(ltr, &mid[0])

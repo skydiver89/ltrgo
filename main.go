@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -10,7 +9,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(crates)
+	//fmt.Println(crates)
 	var allModules []ModuleInterface
 	for _, crate := range crates {
 		modules, err := GetModules(crate)
@@ -19,5 +18,11 @@ func main() {
 		}
 		allModules = append(allModules, modules...)
 	}
-	fmt.Println(len(allModules))
+	if len(allModules) == 0 {
+		log.Fatalln("No modules found")
+	}
+	for _, module := range allModules {
+		module.Init()
+		go module.GetFrame()
+	}
 }

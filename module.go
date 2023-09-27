@@ -29,7 +29,7 @@ func (m *CommonModule) SetCrate(serial [C.LTR_CRATE_SERIAL_SIZE]C.char) {
 }
 
 type ModuleInterface interface {
-	Init()
+	Init() error
 	GetFrame()
 	SetSlot(int)
 	SetCrate([C.LTR_CRATE_SERIAL_SIZE]C.char)
