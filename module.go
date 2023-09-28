@@ -29,8 +29,9 @@ func (m *CommonModule) SetCrate(serial [C.LTR_CRATE_SERIAL_SIZE]C.char) {
 }
 
 type ModuleInterface interface {
-	Init() error
+	Start() error
 	GetFrame() (int64, []float32, error) //Возвращает время в мс с начала эпохи и массив измерений
 	SetSlot(int)
 	SetCrate([C.LTR_CRATE_SERIAL_SIZE]C.char)
+	Stop() error
 }

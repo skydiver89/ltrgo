@@ -28,6 +28,7 @@ var ErrGetConfig11 = errors.New("can't get config of ltr11")
 var ErrSetAdc11 = errors.New("can't set ADC of ltr11")
 var ErrStop11 = errors.New("can't stop ltr11")
 var ErrStart11 = errors.New("can't start ltr11")
+var ErrClose11 = errors.New("can't close ltr11")
 
 type LTR11Module struct {
 	CommonModule
@@ -49,7 +50,19 @@ func (m *LTR11Module) SetConfig(frequency int) {
 	C.LTR11_FindAdcFreqParams(C.double(32*frequency*2), prescalerPtr, dividerPtr, fPtr)
 }
 
-func (m *LTR11Module) Init() error {
+func (m *LTR11Module) Stop() error {
+	res := C.LTR11_Stop(m.ltr11)
+	if res != C.LTR_OK {
+		return ErrStop11
+	}
+	res = C.LTR11_Close(m.ltr11)
+	if res != C.LTR_OK {
+		return ErrClose11
+	}
+	return nil
+}
+
+func (m *LTR11Module) Start() error {
 	m.SetConfig(1) //Нужно убрать отсюда!!!!
 
 	m.ltr11 = new(C.TLTR11)

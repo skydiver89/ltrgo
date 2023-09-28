@@ -4,7 +4,11 @@ type LTR27Module struct {
 	CommonModule
 }
 
-func (m *LTR27Module) Init() error {
+func (m *LTR27Module) Stop() error {
+	return nil
+}
+
+func (m *LTR27Module) Start() error {
 	return nil
 }
 

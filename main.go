@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 )
 
 func main() {
@@ -24,7 +25,11 @@ func main() {
 		log.Fatalln("No modules found")
 	}
 	for _, module := range allModules {
-		module.Init()
+		module.Start()
 		go module.GetFrame()
+	}
+	time.Sleep(time.Second * 5)
+	for _, module := range allModules {
+		module.Stop()
 	}
 }

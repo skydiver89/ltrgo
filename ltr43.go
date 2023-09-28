@@ -19,13 +19,22 @@ var ErrInit43 = errors.New("can't initialize ltr43")
 var ErrOpen43 = errors.New("can't open ltr43")
 var ErrConfig43 = errors.New("can't config ltr43")
 var ErrRead43 = errors.New("can't read ltr43")
+var ErrClose43 = errors.New("can't close ltr43")
 
 type LTR43Module struct {
 	CommonModule
 	ltr43 *C.TLTR43
 }
 
-func (m *LTR43Module) Init() error {
+func (m *LTR43Module) Stop() error {
+	res := C.LTR43_Close(m.ltr43)
+	if res != C.LTR_OK {
+		return ErrClose43
+	}
+	return nil
+}
+
+func (m *LTR43Module) Start() error {
 	m.ltr43 = new(C.TLTR43)
 	res := C.LTR43_Init(m.ltr43)
 	if res != C.LTR_OK {
