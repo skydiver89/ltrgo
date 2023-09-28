@@ -14,9 +14,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"math"
+	"time"
 	"unsafe"
 )
+
+const LTR27_WORD_COUNT = 16
 
 var ErrStop27 = errors.New("can't stop ltr27")
 var ErrStart27 = errors.New("can't start ltr27")
@@ -57,7 +61,7 @@ func (m *LTR27Module) Stop() error {
 
 func (m *LTR27Module) Start() error {
 	if m.frequency == 0 {
-		m.SetConfig(1)
+		m.SetConfig(10)
 	}
 	m.ltr27 = new(C.TLTR27)
 	res := C.LTR27_Init(m.ltr27)
@@ -96,8 +100,33 @@ func (m *LTR27Module) Start() error {
 }
 
 func (m *LTR27Module) GetFrame() (int64, []float32, error) {
-	var curTime int64
 	var frame []float32
+	r := 0
+	var prevbuf [LTR27_WORD_COUNT]C.DWORD
+	var buf [LTR27_WORD_COUNT]C.DWORD
+	var bbuf [LTR27_WORD_COUNT]C.double
+	for {
+		r = int(C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, C.uint(LTR27_WORD_COUNT), C.uint(1)))
+		if r != LTR27_WORD_COUNT {
+			break
+		}
+	}
+	if r != 0 {
+		C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, C.uint(LTR27_WORD_COUNT-r), C.uint(10000))
+	}
+	if m.frequency < 4 {
+		for i := 0; i < 4-m.frequency; i++ {
+			C.LTR27_Recv(m.ltr27, &buf[0], nil, C.uint(LTR27_WORD_COUNT), C.uint(10000))
+		}
+	}
+	curTime := time.Now().UnixMilli()
+	C.LTR27_Recv(m.ltr27, &buf[0], nil, C.uint(LTR27_WORD_COUNT), C.uint(10000))
+	size := C.uint(LTR27_WORD_COUNT)
+	C.LTR27_ProcessData(m.ltr27, &buf[0], &bbuf[0], &size, C.int(1), C.int(1))
+	for i := 0; i < LTR27_WORD_COUNT; i++ {
+		frame = append(frame, float32(bbuf[i]))
+	}
+	fmt.Println(frame)
 	return curTime, frame, nil
 }
 

@@ -125,11 +125,9 @@ func (m *LTR11Module) Start() error {
 func (m *LTR11Module) GetFrame() (int64, []float32, error) {
 	var frame []float32
 	r := 0
-	_ = C.TLTR{}
 	var prevbuf [32]C.DWORD
 	var buf [32]C.DWORD
 	var bbuf [32]C.double
-	curTime := time.Now().UnixMilli()
 	for {
 		r = int(C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, C.uint(m.mode), C.uint(1)))
 		if r != int(m.mode) {
@@ -144,6 +142,7 @@ func (m *LTR11Module) GetFrame() (int64, []float32, error) {
 			C.LTR11_Recv(m.ltr11, &buf[0], nil, C.uint(m.mode), C.uint(10000))
 		}
 	}
+	curTime := time.Now().UnixMilli()
 	C.LTR11_Recv(m.ltr11, &buf[0], nil, C.uint(m.mode), C.uint(10000))
 	size := C.int(m.mode)
 	C.LTR11_ProcessData(m.ltr11, &buf[0], &bbuf[0], &size, C.int(0), C.int(1))

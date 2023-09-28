@@ -26,8 +26,8 @@ func main() {
 	for _, module := range allModules {
 		module.Start()
 	}
-	for i := 0; i < 10; i++ {
-		allModules[1].GetFrame()
+	for i := 0; i < 100; i++ {
+		allModules[0].GetFrame()
 	}
 	for _, module := range allModules {
 		module.Stop()
