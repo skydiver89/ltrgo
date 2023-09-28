@@ -5,19 +5,19 @@ import (
 	"log"
 	"time"
 
-	"github.com/skydiver89/ltrgo"
+	ltr "github.com/skydiver89/ltrgo"
 )
 
 func main() {
-	crates, err := GetCrateSerials()
+	crates, err := ltr.GetCrateSerials()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	//fmt.Println(crates)
-	var allModules []ModuleInterface
+	var allModules []ltr.ModuleInterface
 	for _, crate := range crates {
 		fmt.Println("Крейт:", crate)
-		modules, err := GetModules(crate)
+		modules, err := ltr.GetModules(crate)
 		if err != nil {
 			log.Fatalln(err)
 		}
