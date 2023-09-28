@@ -20,18 +20,18 @@ type CommonModule struct {
 	slot  int
 }
 
-func (m *CommonModule) SetSlot(i int) {
+func (m *CommonModule) setSlot(i int) {
 	m.slot = i
 }
 
-func (m *CommonModule) SetCrate(serial [C.LTR_CRATE_SERIAL_SIZE]C.char) {
+func (m *CommonModule) setCrate(serial [C.LTR_CRATE_SERIAL_SIZE]C.char) {
 	m.crate = serial
 }
 
 type ModuleInterface interface {
 	Start() error
 	GetFrame() (int64, []float32, error) //Возвращает время в мс с начала эпохи и массив измерений
-	SetSlot(int)
-	SetCrate([C.LTR_CRATE_SERIAL_SIZE]C.char)
+	setSlot(int)
+	setCrate([C.LTR_CRATE_SERIAL_SIZE]C.char)
 	Stop() error
 }

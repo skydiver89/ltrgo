@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 	//fmt.Println(crates)
 	var allModules []ModuleInterface
 	for _, crate := range crates {
-		fmt.Println(crate)
+		fmt.Println("Крейт:", crate)
 		modules, err := GetModules(crate)
 		if err != nil {
 			log.Fatalln(err)
@@ -26,8 +27,12 @@ func main() {
 	for _, module := range allModules {
 		module.Start()
 	}
-	for i := 0; i < 100; i++ {
-		allModules[0].GetFrame()
+	for i := 0; i < 10; i++ {
+		for _, module := range allModules {
+			t, data, _ := module.GetFrame()
+			tString := time.Unix(t/1000, (t%1000)*int64(time.Millisecond)).Format("15:04:05")
+			fmt.Println(tString, data)
+		}
 	}
 	for _, module := range allModules {
 		module.Stop()

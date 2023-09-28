@@ -14,7 +14,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"math"
 	"time"
 	"unsafe"
@@ -36,6 +35,14 @@ type LTR27Module struct {
 	ltr27     *C.TLTR27
 	frequency int
 	divisor   int
+}
+
+func (m *LTR27Module) GetMezzInfo() []string {
+	var res []string
+	for i := 0; i < C.LTR27_MEZZANINE_NUMBER; i++ {
+		res = append(res, C.GoString((*C.char)(unsafe.Pointer(&m.ltr27.ModuleInfo.Mezzanine[i].Name[0]))))
+	}
+	return res
 }
 
 func (m *LTR27Module) SetConfig(frequency int) {
@@ -61,7 +68,7 @@ func (m *LTR27Module) Stop() error {
 
 func (m *LTR27Module) Start() error {
 	if m.frequency == 0 {
-		m.SetConfig(10)
+		m.SetConfig(1)
 	}
 	m.ltr27 = new(C.TLTR27)
 	res := C.LTR27_Init(m.ltr27)
@@ -126,7 +133,6 @@ func (m *LTR27Module) GetFrame() (int64, []float32, error) {
 	for i := 0; i < LTR27_WORD_COUNT; i++ {
 		frame = append(frame, float32(bbuf[i]))
 	}
-	fmt.Println(frame)
 	return curTime, frame, nil
 }
 

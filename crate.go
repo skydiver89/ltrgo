@@ -81,8 +81,8 @@ INIT:
 		switch moduleType {
 		case 11, 27, 43:
 			mod := moduleCreator[uint8(moduleType)]()
-			mod.SetCrate(ltr.csn)
-			mod.SetSlot(i + 1)
+			mod.setCrate(ltr.csn)
+			mod.setSlot(i + 1)
 			modules = append(modules, mod)
 		}
 		if moduleType == 255 { //need to reread crate
