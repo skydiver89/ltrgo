@@ -56,12 +56,11 @@ func (m *LTR43Module) Start() error {
 }
 
 func (m *LTR43Module) GetFrame() (int64, []float32, error) {
-	var curTime int64
 	var frame []float32
 	for i := 0; i < 32; i++ {
 		frame = append(frame, 0)
 	}
-	curTime = time.Now().UnixMilli()
+	curTime := time.Now().UnixMilli()
 	var word C.DWORD
 	res := C.LTR43_ReadPort(m.ltr43, &word)
 	if res != C.LTR_OK {

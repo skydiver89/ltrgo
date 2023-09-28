@@ -2,7 +2,7 @@ package main
 
 /*
 #cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -L/usr/lib/ -lltrapi -lltr11api
+#cgo LDFLAGS: -L/usr/lib/ -lltrapi -lltr11api -lltr27api -lltr43api
 #include <ltr/include/ltrapi.h>
 #include <ltr/include/ltrapidefine.h>
 #include <ltr/include/ltr11api.h>
@@ -10,8 +10,11 @@ package main
 import (
 	"C"
 )
+
+//#include <ltr/include/ltr11api.h>
 import (
 	"errors"
+	"time"
 	"unsafe"
 )
 
@@ -21,6 +24,9 @@ const (
 	LTR11_MODE16 LTR11_MODE = 16
 	LTR11_MODE32 LTR11_MODE = 32
 )
+
+type TLTRopt struct {
+}
 
 var ErrInit11 = errors.New("can't initialize ltr11")
 var ErrOpen11 = errors.New("can't open ltr11")
@@ -36,18 +42,23 @@ type LTR11Module struct {
 	mode      LTR11_MODE
 	prescaler int
 	divider   int
+	channel   *C.TLTR
+	frequency int
 }
 
-func (m *LTR11Module) SetConfig(frequency int) {
-	m.mode = LTR11_MODE32
+func (m *LTR11Module) SetConfig(frequency int, mode LTR11_MODE) {
+	m.mode = mode
+	m.frequency = frequency
+	freq := frequency
 	if frequency < 4 {
-		frequency = 4
+		freq = 4
 	}
+
 	prescalerPtr := (*C.int)(unsafe.Pointer(&m.prescaler))
 	dividerPtr := (*C.int)(unsafe.Pointer(&m.divider))
 	f := 0
 	fPtr := (*C.double)(unsafe.Pointer(&f))
-	C.LTR11_FindAdcFreqParams(C.double(32*frequency*2), prescalerPtr, dividerPtr, fPtr)
+	C.LTR11_FindAdcFreqParams(C.double(32*freq*2), prescalerPtr, dividerPtr, fPtr)
 }
 
 func (m *LTR11Module) Stop() error {
@@ -63,7 +74,9 @@ func (m *LTR11Module) Stop() error {
 }
 
 func (m *LTR11Module) Start() error {
-	m.SetConfig(1) //Нужно убрать отсюда!!!!
+	if m.mode == 0 {
+		m.SetConfig(1, LTR11_MODE16)
+	}
 
 	m.ltr11 = new(C.TLTR11)
 	res := C.LTR11_Init(m.ltr11)
@@ -110,7 +123,32 @@ func (m *LTR11Module) Start() error {
 }
 
 func (m *LTR11Module) GetFrame() (int64, []float32, error) {
-	var curTime int64
 	var frame []float32
+	r := 0
+	_ = C.TLTR{}
+	var prevbuf [32]C.DWORD
+	var buf [32]C.DWORD
+	var bbuf [32]C.double
+	curTime := time.Now().UnixMilli()
+	for {
+		r = int(C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, C.uint(m.mode), C.uint(1)))
+		if r != int(m.mode) {
+			break
+		}
+	}
+	if r != 0 {
+		C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, C.uint(int(m.mode)-r), C.uint(10000))
+	}
+	if m.frequency < 4 {
+		for i := 0; i < 4-m.frequency; i++ {
+			C.LTR11_Recv(m.ltr11, &buf[0], nil, C.uint(m.mode), C.uint(10000))
+		}
+	}
+	C.LTR11_Recv(m.ltr11, &buf[0], nil, C.uint(m.mode), C.uint(10000))
+	size := C.int(m.mode)
+	C.LTR11_ProcessData(m.ltr11, &buf[0], &bbuf[0], &size, C.int(0), C.int(1))
+	for i := 0; i < int(m.mode); i++ {
+		frame = append(frame, float32(bbuf[i]))
+	}
 	return curTime, frame, nil
 }
