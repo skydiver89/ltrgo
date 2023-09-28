@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/skydiver89/ltrgo"
 )
 
 func main() {

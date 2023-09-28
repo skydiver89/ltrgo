@@ -1,4 +1,4 @@
-package main
+package ltrgo
 
 /*
 #cgo CFLAGS: -g -Wall
