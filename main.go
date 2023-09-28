@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 )
 
@@ -12,6 +13,7 @@ func main() {
 	//fmt.Println(crates)
 	var allModules []ModuleInterface
 	for _, crate := range crates {
+		fmt.Println(crate)
 		modules, err := GetModules(crate)
 		if err != nil {
 			log.Fatalln(err)

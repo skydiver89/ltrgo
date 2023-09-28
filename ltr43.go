@@ -10,11 +10,15 @@ package main
 import (
 	"C"
 )
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 var ErrInit43 = errors.New("can't initialize ltr43")
 var ErrOpen43 = errors.New("can't open ltr43")
 var ErrConfig43 = errors.New("can't config ltr43")
+var ErrRead43 = errors.New("can't read ltr43")
 
 type LTR43Module struct {
 	CommonModule
@@ -42,6 +46,22 @@ func (m *LTR43Module) Init() error {
 	return nil
 }
 
-func (m *LTR43Module) GetFrame() {
-
+func (m *LTR43Module) GetFrame() (int64, []float32, error) {
+	var curTime int64
+	var frame []float32
+	for i := 0; i < 32; i++ {
+		frame = append(frame, 0)
+	}
+	curTime = time.Now().UnixMilli()
+	var word C.DWORD
+	res := C.LTR43_ReadPort(m.ltr43, &word)
+	if res != C.LTR_OK {
+		return curTime, frame, ErrRead43
+	}
+	val := int(word)
+	for i := 0; i < 32; i++ {
+		frame[i] = float32(val & 0x1)
+		val >>= 1
+	}
+	return curTime, frame, nil
 }
