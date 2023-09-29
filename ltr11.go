@@ -1,7 +1,7 @@
 package ltrgo
 
 /*
-#cgo CFLAGS: -g -Wall
+#cgo CFLAGS: -g -w
 #cgo linux LDFLAGS: -L/usr/lib/ -lltrapi -lltr11api
 #cgo windows LDFLAGS: -L./ltr/libmingw/ -lltrapi -lltr11api
 #include <ltr/include/ltrapi.h>

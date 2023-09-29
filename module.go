@@ -1,7 +1,7 @@
 package ltrgo
 
 /*
-#cgo CFLAGS: -g -Wall
+#cgo CFLAGS: -g -w
 #cgo LDFLAGS: -L/usr/lib/ -lltrapi
 #include <ltr/include/ltrapi.h>
 */
