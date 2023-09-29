@@ -2,7 +2,8 @@ package ltrgo
 
 /*
 #cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -L/usr/lib/ -lltrapi -lltr27api
+#cgo linux LDFLAGS: -L/usr/lib/ -lltrapi -lltr27api
+#cgo windows LDFLAGS: -L./ltr/libmingw/ -lltrapi -lltr27api
 #include <ltr/include/ltrapi.h>
 #include <ltr/include/ltrapidefine.h>
 #include <ltr/include/ltr27api.h>
@@ -138,11 +139,11 @@ func (m *LTR27Module) GetFrame() (int64, []float32, error) {
 
 type TMezzanineDescription struct {
 	Active       byte
-	Name         [C.LTR_DESCR_NAME_LEN]byte
-	SerialNumber [C.LTR_DESCR_SERIAL_LEN]byte
+	Name         [16]byte //C.LTR_DESCR_NAME_LEN
+	SerialNumber [16]byte //C.LTR_DESCR_SERIAL_LEN
 	Revision     byte
-	Calibration  [C.LTR_DESCR_MEZ_CALIB_CNT]float64
-	Comment      [C.LTR_DESCR_COMMENT_LEN]byte
+	Calibration  [4]float64 //C.LTR_DESCR_MEZ_CALIB_CNT
+	Comment      [256]byte  //C.LTR_DESCR_COMMENT_LEN
 }
 
 func (m *TMezzanineDescription) unpack(i *C.TLTR_DESCRIPTION_MEZZANINE) {
@@ -153,7 +154,7 @@ func (m *TMezzanineDescription) unpack(i *C.TLTR_DESCRIPTION_MEZZANINE) {
 	binary.Read(buf, binary.LittleEndian, &m.SerialNumber)
 	binary.Read(buf, binary.LittleEndian, &m.Revision)
 	binary.Read(buf, binary.LittleEndian, &m.Calibration)
-	for i := 0; i < C.LTR_DESCR_MEZ_CALIB_CNT; i++ {
+	for i := 0; i < 4; i++ { //C.LTR_DESCR_MEZ_CALIB_CNT
 		bits := binary.LittleEndian.Uint64(cdata[36+i*8 : 44+i*8]) //Всё из-за выравнивания структур в либе лкарда
 		m.Calibration[i] = math.Float64frombits(bits)
 	}

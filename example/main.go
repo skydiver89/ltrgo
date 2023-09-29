@@ -29,9 +29,9 @@ func main() {
 	for _, module := range allModules {
 		switch mod := module.(type) {
 		case *ltr.LTR11Module:
-			mod.SetConfig(5, ltr.LTR11_MODE32)
+			mod.SetConfig(5, ltr.LTR11_MODE32) //Если не вызвать эту функцию, значения по умолчанию 1Гц, 32-каналальный режим
 		case *ltr.LTR27Module:
-			mod.SetConfig(5)
+			mod.SetConfig(5) //Если не вызвать эту функцию, значение по умолчанию 1Гц
 		}
 		module.Start()
 	}

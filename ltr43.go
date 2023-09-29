@@ -2,7 +2,8 @@ package ltrgo
 
 /*
 #cgo CFLAGS: -g -Wall
-#cgo LDFLAGS: -L/usr/lib/ -lltrapi -lltr43api
+#cgo linux LDFLAGS: -L/usr/lib/ -lltrapi -lltr43api
+#cgo windows LDFLAGS: -L./ltr/libmingw/ -lltrapi -lltr43api
 #include <ltr/include/ltrapi.h>
 #include <ltr/include/ltrapidefine.h>
 #include <ltr/include/ltr43api.h>
