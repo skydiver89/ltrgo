@@ -33,16 +33,25 @@ func main() {
 		case *ltr.LTR27Module:
 			mod.SetConfig(5) //Если не вызвать эту функцию, значение по умолчанию 1Гц
 		}
-		module.Start()
+		err = module.Start()
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 	for i := 0; i < 10; i++ {
 		for _, module := range allModules {
-			t, data, _ := module.GetFrame()
+			t, data, err := module.GetFrame()
+			if err != nil {
+				log.Fatalln(err)
+			}
 			tString := time.Unix(t/1000, (t%1000)*int64(time.Millisecond)).Format("15:04:05")
 			fmt.Println(tString, data)
 		}
 	}
 	for _, module := range allModules {
-		module.Stop()
+		err = module.Stop()
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 }
