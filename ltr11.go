@@ -1,6 +1,3 @@
-//go:build windows
-// +build windows
-
 package ltrgo
 
 /*
@@ -133,21 +130,21 @@ func (m *LTR11Module) GetFrame() (int64, []float32, error) {
 	var buf [32]C.DWORD
 	var bbuf [32]C.double
 	for {
-		r = int(C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, C.ulong(m.mode), C.ulong(1)))
+		r = int(C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, cuint(m.mode), cuint(1)))
 		if r != int(m.mode) {
 			break
 		}
 	}
 	if r != 0 {
-		C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, C.ulong(int(m.mode)-r), C.ulong(10000))
+		C.LTR11_Recv(m.ltr11, &prevbuf[0], nil, cuint(int(m.mode)-r), cuint(10000))
 	}
 	if m.frequency < 4 {
 		for i := 0; i < 4-m.frequency; i++ {
-			C.LTR11_Recv(m.ltr11, &buf[0], nil, C.ulong(m.mode), C.ulong(10000))
+			C.LTR11_Recv(m.ltr11, &buf[0], nil, cuint(m.mode), cuint(10000))
 		}
 	}
 	curTime := time.Now().UnixMilli()
-	C.LTR11_Recv(m.ltr11, &buf[0], nil, C.ulong(m.mode), C.ulong(10000))
+	C.LTR11_Recv(m.ltr11, &buf[0], nil, cuint(m.mode), cuint(10000))
 	size := C.int(m.mode)
 	C.LTR11_ProcessData(m.ltr11, &buf[0], &bbuf[0], &size, C.int(0), C.int(1))
 	for i := 0; i < int(m.mode); i++ {
