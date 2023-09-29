@@ -27,6 +27,12 @@ func main() {
 		log.Fatalln("No modules found")
 	}
 	for _, module := range allModules {
+		switch mod := module.(type) {
+		case *ltr.LTR11Module:
+			mod.SetConfig(5, ltr.LTR11_MODE32)
+		case *ltr.LTR27Module:
+			mod.SetConfig(5)
+		}
 		module.Start()
 	}
 	for i := 0; i < 10; i++ {
