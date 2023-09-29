@@ -114,22 +114,22 @@ func (m *LTR27Module) GetFrame() (int64, []float32, error) {
 	var buf [LTR27_WORD_COUNT]C.DWORD
 	var bbuf [LTR27_WORD_COUNT]C.double
 	for {
-		r = int(C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, C.uint(LTR27_WORD_COUNT), C.uint(1)))
+		r = int(C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, cuint(LTR27_WORD_COUNT), cuint(1)))
 		if r != LTR27_WORD_COUNT {
 			break
 		}
 	}
 	if r != 0 {
-		C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, C.uint(LTR27_WORD_COUNT-r), C.uint(10000))
+		C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, cuint(LTR27_WORD_COUNT-r), cuint(10000))
 	}
 	if m.frequency < 4 {
 		for i := 0; i < 4-m.frequency; i++ {
-			C.LTR27_Recv(m.ltr27, &buf[0], nil, C.uint(LTR27_WORD_COUNT), C.uint(10000))
+			C.LTR27_Recv(m.ltr27, &buf[0], nil, cuint(LTR27_WORD_COUNT), cuint(10000))
 		}
 	}
 	curTime := time.Now().UnixMilli()
-	C.LTR27_Recv(m.ltr27, &buf[0], nil, C.uint(LTR27_WORD_COUNT), C.uint(10000))
-	size := C.uint(LTR27_WORD_COUNT)
+	C.LTR27_Recv(m.ltr27, &buf[0], nil, cuint(LTR27_WORD_COUNT), cuint(10000))
+	size := cuint(LTR27_WORD_COUNT)
 	C.LTR27_ProcessData(m.ltr27, &buf[0], &bbuf[0], &size, C.int(1), C.int(1))
 	for i := 0; i < LTR27_WORD_COUNT; i++ {
 		frame = append(frame, float32(bbuf[i]))

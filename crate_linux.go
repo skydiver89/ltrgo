@@ -40,9 +40,9 @@ func GetCrateSerials() ([]string, error) {
 		return nil, ErrOpenCrate
 	}
 	foundCrates := 0
-	foundCratesPtr := (*C.uint)(unsafe.Pointer(&foundCrates))
+	foundCratesPtr := (*cuint)(unsafe.Pointer(&foundCrates))
 	cratesReturned := 0
-	cratesReturnedPtr := (*C.uint)(unsafe.Pointer(&cratesReturned))
+	cratesReturnedPtr := (*cuint)(unsafe.Pointer(&cratesReturned))
 	var infoList [C.LTR_CRATES_MAX]C.TLTR_CRATE_INFO
 	infoListPtr := (*C.TLTR_CRATE_INFO)(unsafe.Pointer(&infoList))
 	var serials [C.LTR_CRATES_MAX][C.LTR_CRATE_SERIAL_SIZE]C.char
