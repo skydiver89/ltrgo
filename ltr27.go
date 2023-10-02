@@ -38,6 +38,7 @@ type LTR27Module struct {
 	divisor   int
 }
 
+// Можно вызывать эту функцию только после Start()!!!
 func (m *LTR27Module) GetMezzInfo() []string {
 	var res []string
 	for i := 0; i < C.LTR27_MEZZANINE_NUMBER; i++ {

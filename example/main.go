@@ -32,6 +32,9 @@ func main() {
 			mod.SetConfig(5, ltr.LTR11_MODE32) //Если не вызвать эту функцию, значения по умолчанию 1Гц, 32-каналальный режим
 		case *ltr.LTR27Module:
 			mod.SetConfig(5) //Если не вызвать эту функцию, значение по умолчанию 1Гц
+			mod.Start()
+			fmt.Println(mod.GetMezzInfo()) //Можно вызывать эту функцию только после Start!
+			mod.Stop()
 		}
 		err = module.Start()
 		if err != nil {
