@@ -17,6 +17,7 @@ import (
 )
 import (
 	"errors"
+	"time"
 	"unsafe"
 )
 
@@ -24,6 +25,12 @@ var ErrInitCrate = errors.New("can't initialize ltr structure")
 var ErrOpenCrate = errors.New("can't open connection to ltrd")
 var ErrGetCrates = errors.New("can't get crates")
 var ErrGetModules = errors.New("can't get modules")
+
+var updateTimeInterval time.Duration = 10000 * time.Millisecond
+
+func SetUpdateTimeInterval(msec int) {
+	updateTimeInterval = time.Duration(msec) * time.Millisecond
+}
 
 func GetCrateSerials() ([]string, error) {
 	ltr := new(C.TLTR)

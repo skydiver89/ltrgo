@@ -13,6 +13,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	ltr.SetUpdateTimeInterval(10)
 	//fmt.Println(crates)
 	var allModules []ltr.ModuleInterface
 	for _, crate := range crates {
@@ -29,9 +30,9 @@ func main() {
 	for _, module := range allModules {
 		switch mod := module.(type) {
 		case *ltr.LTR11Module:
-			mod.SetConfig(5, ltr.LTR11_MODE32) //Если не вызвать эту функцию, значения по умолчанию 1Гц, 32-каналальный режим
+			mod.SetConfig(10, ltr.LTR11_MODE32) //Если не вызвать эту функцию, значения по умолчанию 1Гц, 32-каналальный режим
 		case *ltr.LTR27Module:
-			mod.SetConfig(5) //Если не вызвать эту функцию, значение по умолчанию 1Гц
+			mod.SetConfig(10) //Если не вызвать эту функцию, значение по умолчанию 1Гц
 			mod.Start()
 			fmt.Println(mod.GetMezzInfo()) //Можно вызывать эту функцию только после Start!
 			mod.Stop()
@@ -47,7 +48,7 @@ func main() {
 			if err != nil {
 				log.Fatalln(err)
 			}
-			tString := time.Unix(t/1000, (t%1000)*int64(time.Millisecond)).Format("15:04:05")
+			tString := time.Unix(t/1000, (t%1000)*int64(time.Millisecond)).Format("15:04:05.000")
 			fmt.Println(tString, data)
 		}
 	}
