@@ -30,6 +30,7 @@ var ErrOpen27 = errors.New("can't open ltr27")
 var ErrGetConfig27 = errors.New("can't get config ltr27")
 var ErrSetConfig27 = errors.New("can't set config ltr27")
 var ErrGetDescription27 = errors.New("can't get description ltr27")
+var ErrStuck27 = errors.New("ltr27 stucked")
 
 type LTR27Module struct {
 	CommonModule
@@ -47,13 +48,13 @@ func (m *LTR27Module) GetMezzInfo() []string {
 	return res
 }
 
+// Минимальная частота - 5Hz
 func (m *LTR27Module) SetConfig(frequency int) {
-	m.frequency = frequency
-	if frequency >= 4 {
-		m.divisor = int(1000.0/float32(m.frequency)) - 1
-	} else {
-		m.divisor = 249 //4Hz (1000.0/4-1)
+	if frequency < 5 {
+		frequency = 5
 	}
+	m.frequency = frequency
+	m.divisor = int(1000.0/float32(m.frequency)) - 1
 }
 
 func (m *LTR27Module) Stop() error {
@@ -70,7 +71,7 @@ func (m *LTR27Module) Stop() error {
 
 func (m *LTR27Module) Start() error {
 	if m.frequency == 0 {
-		m.SetConfig(1)
+		m.SetConfig(5)
 	}
 	m.ltr27 = new(C.TLTR27)
 	res := C.LTR27_Init(m.ltr27)
@@ -109,31 +110,24 @@ func (m *LTR27Module) Start() error {
 }
 
 func (m *LTR27Module) GetFrame() (int64, []float32, error) {
+	tries := 0
+AGAIN:
 	var frame []float32
-	r := 0
-	var prevbuf [LTR27_WORD_COUNT]C.DWORD
 	var buf [LTR27_WORD_COUNT]C.DWORD
 	var bbuf [LTR27_WORD_COUNT]C.double
-	for {
-		r = int(C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, cuint(LTR27_WORD_COUNT), cuint(1)))
-		if r != LTR27_WORD_COUNT {
-			break
-		}
-	}
-	if r != 0 {
-		C.LTR27_Recv(m.ltr27, &prevbuf[0], nil, cuint(LTR27_WORD_COUNT-r), cuint(10000))
-	}
-	if m.frequency < 4 {
-		for i := 0; i < 4-m.frequency; i++ {
-			C.LTR27_Recv(m.ltr27, &buf[0], nil, cuint(LTR27_WORD_COUNT), cuint(10000))
-		}
-	}
 	curTime := time.Now().UnixMilli()
 	C.LTR27_Recv(m.ltr27, &buf[0], nil, cuint(LTR27_WORD_COUNT), cuint(10000))
 	size := cuint(LTR27_WORD_COUNT)
-	C.LTR27_ProcessData(m.ltr27, &buf[0], &bbuf[0], &size, C.int(1), C.int(1))
+	res := C.LTR27_ProcessData(m.ltr27, &buf[0], &bbuf[0], &size, C.int(1), C.int(1))
 	for i := 0; i < LTR27_WORD_COUNT; i++ {
 		frame = append(frame, float32(bbuf[i]))
+	}
+	if res != C.LTR_OK { //Не видел, чтобы это случалось, но на всякий случай
+		tries++
+		if tries == 10 {
+			return curTime, frame, ErrStuck27
+		}
+		goto AGAIN
 	}
 	return curTime, frame, nil
 }

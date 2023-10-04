@@ -69,7 +69,7 @@ func (m *LTR11Module) Stop() error {
 
 func (m *LTR11Module) Start() error {
 	if m.mode == 0 {
-		m.SetConfig(1, LTR11_MODE16)
+		m.SetConfig(1, LTR11_MODE32)
 	}
 
 	m.ltr11 = new(C.TLTR11)
