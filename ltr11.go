@@ -25,6 +25,16 @@ const (
 	LTR11_MODE32 LTR11_MODE = 32
 )
 
+type LTR11_TEST_MODE int
+
+const (
+	LTR11_STATE = C.LTR11_ADCMODE_ACQ
+	LTR11_TEST1 = C.LTR11_ADCMODE_TEST_U1P
+	LTR11_TEST2 = C.LTR11_ADCMODE_TEST_U1N
+	LTR11_TEST3 = C.LTR11_ADCMODE_TEST_U2N
+	LTR11_TEST4 = C.LTR11_ADCMODE_TEST_U2P
+)
+
 type TLTRopt struct {
 }
 
@@ -41,13 +51,15 @@ type LTR11Module struct {
 	CommonModule
 	ltr11     *C.TLTR11
 	mode      LTR11_MODE
+	testMode  LTR11_TEST_MODE
 	prescaler int
 	divider   int
 	channel   *C.TLTR
 }
 
-func (m *LTR11Module) SetConfig(frequency int, mode LTR11_MODE) {
+func (m *LTR11Module) SetConfig(frequency int, mode LTR11_MODE, testMode LTR11_TEST_MODE) {
 	m.mode = mode
+	m.testMode = testMode
 	prescalerPtr := (*C.int)(unsafe.Pointer(&m.prescaler))
 	dividerPtr := (*C.int)(unsafe.Pointer(&m.divider))
 	f := 0
@@ -69,7 +81,7 @@ func (m *LTR11Module) Stop() error {
 
 func (m *LTR11Module) Start() error {
 	if m.mode == 0 {
-		m.SetConfig(1, LTR11_MODE32)
+		m.SetConfig(1, LTR11_MODE32, LTR11_STATE)
 	}
 
 	m.ltr11 = new(C.TLTR11)
@@ -98,7 +110,7 @@ func (m *LTR11Module) Start() error {
 			m.ltr11.LChTbl[k] = C.uchar(k | 0x20)
 		}
 	}
-	m.ltr11.ADCMode = C.LTR11_ADCMODE_ACQ
+	m.ltr11.ADCMode = C.int(m.testMode)
 	m.ltr11.ADCRate.prescaler = C.int(m.prescaler)
 	m.ltr11.ADCRate.divider = C.int(m.divider)
 	res = C.LTR11_SetADC(m.ltr11)
