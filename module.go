@@ -28,10 +28,15 @@ func (m *CommonModule) setCrate(serial [C.LTR_CRATE_SERIAL_SIZE]C.char) {
 	m.crate = serial
 }
 
+func (m *CommonModule) Slot() int {
+	return m.slot
+}
+
 type ModuleInterface interface {
 	Start() error
 	GetFrame() (int64, []float32, error) //Возвращает время в мс с начала эпохи и массив измерений
 	setSlot(int)
 	setCrate([C.LTR_CRATE_SERIAL_SIZE]C.char)
 	Stop() error
+	Slot() int
 }

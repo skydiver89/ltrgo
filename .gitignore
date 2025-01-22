@@ -1,3 +1,4 @@
 example/go.mod
 example/go.sum
 example/*.exe
+example/example
