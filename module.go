@@ -32,6 +32,10 @@ func (m *CommonModule) Slot() int {
 	return m.slot
 }
 
+func (m *CommonModule) Crate() string {
+	return C.GoString(&m.crate[0])
+}
+
 type ModuleInterface interface {
 	Start() error
 	GetFrame() (int64, []float32, error) //Возвращает время в мс с начала эпохи и массив измерений
@@ -40,4 +44,5 @@ type ModuleInterface interface {
 	Stop() error
 	Slot() int
 	Type() string
+	Crate() string
 }
