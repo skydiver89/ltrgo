@@ -35,6 +35,10 @@ func (m *LTR43Module) Stop() error {
 	return nil
 }
 
+func (m *LTR43Module) Type() string {
+	return "LTR43"
+}
+
 func (m *LTR43Module) Start() error {
 	m.ltr43 = new(C.TLTR43)
 	res := C.LTR43_Init(m.ltr43)

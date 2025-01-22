@@ -39,6 +39,10 @@ type LTR27Module struct {
 	divisor   int
 }
 
+func (m *LTR27Module) Type() string {
+	return "LTR27"
+}
+
 // Можно вызывать эту функцию только после Start()!!!
 func (m *LTR27Module) GetMezzInfo() []string {
 	var res []string

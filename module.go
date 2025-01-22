@@ -39,4 +39,5 @@ type ModuleInterface interface {
 	setCrate([C.LTR_CRATE_SERIAL_SIZE]C.char)
 	Stop() error
 	Slot() int
+	Type() string
 }

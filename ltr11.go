@@ -57,6 +57,10 @@ type LTR11Module struct {
 	channel   *C.TLTR
 }
 
+func (m *LTR11Module) Type() string {
+	return "LTR11"
+}
+
 func (m *LTR11Module) SetConfig(frequency int, mode LTR11_MODE, testMode LTR11_TEST_MODE) {
 	m.mode = mode
 	m.testMode = testMode
