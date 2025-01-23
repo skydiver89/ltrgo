@@ -49,12 +49,14 @@ var ErrStuck11 = errors.New("ltr11 stucked")
 
 type LTR11Module struct {
 	CommonModule
-	ltr11     *C.TLTR11
-	mode      LTR11_MODE
-	testMode  LTR11_TEST_MODE
-	prescaler int
-	divider   int
-	channel   *C.TLTR
+	ltr11      *C.TLTR11
+	mode       LTR11_MODE
+	testMode   LTR11_TEST_MODE
+	prescaler  int
+	divider    int
+	channel    *C.TLTR
+	pseudoTime int64
+	frequency  int
 }
 
 func (m *LTR11Module) Type() string {
@@ -63,6 +65,7 @@ func (m *LTR11Module) Type() string {
 
 func (m *LTR11Module) SetConfig(frequency int, mode LTR11_MODE, testMode LTR11_TEST_MODE) {
 	m.mode = mode
+	m.frequency = frequency
 	m.testMode = testMode
 	prescalerPtr := (*C.int)(unsafe.Pointer(&m.prescaler))
 	dividerPtr := (*C.int)(unsafe.Pointer(&m.divider))
@@ -129,6 +132,7 @@ func (m *LTR11Module) Start() error {
 	if res != C.LTR_OK {
 		return ErrStart11
 	}
+	m.pseudoTime = time.Now().UnixMicro()
 	return nil
 }
 
@@ -138,7 +142,13 @@ AGAIN:
 	var frame []float32
 	var buf [32]C.DWORD
 	var bbuf [32]C.double
-	curTime := time.Now().UnixMilli()
+	var curTime int64
+	if m.frequency > 100 {
+		m.pseudoTime += 1000000 / int64(m.frequency)
+		curTime = int64(m.pseudoTime) / 1000
+	} else {
+		curTime = time.Now().UnixMilli()
+	}
 	C.LTR11_Recv(m.ltr11, &buf[0], nil, cuint(m.mode), cuint(10000))
 	size := C.int(m.mode)
 	res := C.LTR11_ProcessData(m.ltr11, &buf[0], &bbuf[0], &size, C.int(0), C.int(1))

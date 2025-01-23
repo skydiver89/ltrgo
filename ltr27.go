@@ -34,9 +34,10 @@ var ErrStuck27 = errors.New("ltr27 stucked")
 
 type LTR27Module struct {
 	CommonModule
-	ltr27     *C.TLTR27
-	frequency int
-	divisor   int
+	ltr27      *C.TLTR27
+	frequency  int
+	divisor    int
+	pseudoTime int64
 }
 
 func (m *LTR27Module) Type() string {
@@ -110,6 +111,7 @@ func (m *LTR27Module) Start() error {
 	if res != C.LTR_OK {
 		return ErrStart27
 	}
+	m.pseudoTime = time.Now().UnixMicro()
 	return nil
 }
 
@@ -119,7 +121,13 @@ AGAIN:
 	var frame []float32
 	var buf [LTR27_WORD_COUNT]C.DWORD
 	var bbuf [LTR27_WORD_COUNT]C.double
-	curTime := time.Now().UnixMilli()
+	var curTime int64
+	if m.frequency > 100 {
+		m.pseudoTime += 1000000 / int64(m.frequency)
+		curTime = int64(m.pseudoTime) / 1000
+	} else {
+		curTime = time.Now().UnixMilli()
+	}
 	C.LTR27_Recv(m.ltr27, &buf[0], nil, cuint(LTR27_WORD_COUNT), cuint(10000))
 	size := cuint(LTR27_WORD_COUNT)
 	res := C.LTR27_ProcessData(m.ltr27, &buf[0], &bbuf[0], &size, C.int(1), C.int(1))
